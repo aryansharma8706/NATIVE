@@ -53,27 +53,44 @@
 //   },
 // });
 
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import {useEffect , useState} from 'react'
+import axios from 'axios';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
 const App = () => {
-  const [todo , setTodo] = useState(null)
-  const [loading , setLoading] = useState(true)
-  useEffect(()=>{
-    setLoading(true)
-    axios.get('https://jsonplaceholder.typicode.com/todos').then((res)=>{
-      setTodo(res.data)
-    }).catch((err)=>{
-      console.log(err)
-    }).finally(()=>{
-      setLoading(false)
-    })
-  })
+  const [todo, setTodo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get('https://jsonplaceholder.typicode.com/todos')
+      .then((res) => {
+        setTodo(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  console.log(todo);
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
         <View>
-          <Text>App</Text>
+          <FlatList
+            data={todo}
+            keyExtractor={( item ) => {
+              console.log(item)
+            }}
+            renderItem={({ item }) => (
+              <View>
+                <Text>{item.title}</Text>
+              </View>
+            )}
+          />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>

@@ -53,13 +53,15 @@
 //   },
 // });
 
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import React from 'react';
 import axios from 'axios';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 const App = () => {
   const [todo, setTodo] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
@@ -79,7 +81,7 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <View>
+        {/* <View style={{padding : 20}}>
           <FlatList
             data={todo}
             keyExtractor={( item ) => {
@@ -91,6 +93,25 @@ const App = () => {
               </View>
             )}
           />
+        </View> */}
+        <View>
+          <Text>Login</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            returnKeyType="next"
+          />
+
+          <TextInput
+            style={styles.input}
+            secureTextEntry
+            value={password}
+            placeholder="Enter password"
+            onChangeText={setPassword}
+          />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -99,5 +120,12 @@ const App = () => {
 
 export default App;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  input: {
+    margin: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: 'blue',
+  },
+});
 //shorthand for creating native component rnfes

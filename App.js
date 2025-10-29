@@ -53,7 +53,15 @@
 //   },
 // });
 
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Alert,
+} from 'react-native';
 import React from 'react';
 import axios from 'axios';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -112,6 +120,19 @@ const App = () => {
             placeholder="Enter password"
             onChangeText={setPassword}
           />
+
+          <Pressable
+            onPress={() => Alert.alert(email, password)}
+            onLongPress={() => console.log('long pressed')}
+            onPressIn={() => console.log('when initially pressed')}
+            onPressOut={() => {
+              console.log('pressed out');
+            }}
+          >
+            <View>
+              <Text>Submit</Text>
+            </View>
+          </Pressable>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>

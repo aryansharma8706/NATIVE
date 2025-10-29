@@ -2,279 +2,308 @@
 
 ## Overview
 
-The Classroom Assignment Portal is a React-based single-page application (SPA) that provides separate interfaces for teachers and students to manage classroom assignments. The application uses a component-based architecture with React hooks for state management, React Router for navigation, and local storage for data persistence in this initial implementation.
+The Classroom Assignment Portal is a full-stack web application built with a React frontend and Node.js backend. The system follows a RESTful API architecture with JWT-based authentication, PostgreSQL database, and cloud file storage. The design emphasizes responsive UI, secure data handling, and scalable architecture to support educational institutions of varying sizes.
 
 ## Architecture
 
-### High-Level Architecture
+### System Architecture
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Presentation  │    │   Application   │    │      Data       │
-│     Layer       │    │     Layer       │    │     Layer       │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • React         │    │ • State Mgmt    │    │ • Local Storage │
-│   Components    │◄──►│ • Business      │◄──►│ • Data Models   │
-│ • UI/UX         │    │   Logic         │    │ • Validation    │
-│ • Routing       │    │ • Hooks         │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[React SPA] --> B[React Router]
+        A --> C[Redux Store]
+        A --> D[Material-UI Components]
+    end
+    
+    subgraph "API Layer"
+        E[Express.js Server] --> F[JWT Middleware]
+        E --> G[Route Controllers]
+        E --> H[Validation Middleware]
+    end
+    
+    subgraph "Business Logic Layer"
+        I[User Service] --> J[Assignment Service]
+        I --> K[Notification Service]
+        I --> L[File Service]
+    end
+    
+    subgraph "Data Layer"
+        M[PostgreSQL Database] --> N[User Tables]
+        M --> O[Assignment Tables]
+        M --> P[Submission Tables]
+        Q[AWS S3] --> R[File Storage]
+    end
+    
+    A --> E
+    G --> I
+    I --> M
+    L --> Q
 ```
 
 ### Technology Stack
 
-- **Frontend Framework**: React 18+ with functional components and hooks
-- **Routing**: React Router v6 for client-side navigation
-- **Styling**: CSS Modules or Styled Components for component styling
-- **State Management**: React Context API with useReducer for global state
-- **Data Persistence**: Browser localStorage for initial implementation
-- **File Handling**: HTML5 File API for assignment submissions
-- **Date Management**: JavaScript Date objects with validation utilities
+**Frontend:**
+- React 18 with TypeScript for type safety
+- Material-UI (MUI) for consistent, accessible components
+- Redux Toolkit for state management
+- React Query for server state management
+- React Hook Form for form handling
+- Axios for HTTP requests
+
+**Backend:**
+- Node.js with Express.js framework
+- TypeScript for type safety
+- JWT for authentication
+- bcrypt for password hashing
+- Multer for file upload handling
+- node-cron for scheduled tasks
+
+**Database:**
+- PostgreSQL for relational data
+- Prisma ORM for database operations
+- Redis for session storage and caching
+
+**Infrastructure:**
+- AWS S3 for file storage
+- AWS CloudFront for CDN
+- Docker for containerization
+- GitHub Actions for CI/CD
 
 ## Components and Interfaces
 
-### Core Components Structure
+### Frontend Components
 
-```
-src/
-├── components/
-│   ├── common/
-│   │   ├── Header.js
-│   │   ├── Navigation.js
-│   │   ├── NotificationBanner.js
-│   │   └── LoadingSpinner.js
-│   ├── teacher/
-│   │   ├── TeacherDashboard.js
-│   │   ├── AssignmentForm.js
-│   │   ├── AssignmentList.js
-│   │   ├── SubmissionReview.js
-│   │   └── ClassRoster.js
-│   └── student/
-│       ├── StudentDashboard.js
-│       ├── AssignmentView.js
-│       ├── SubmissionForm.js
-│       └── GradeHistory.js
-├── contexts/
-│   ├── AuthContext.js
-│   ├── AssignmentContext.js
-│   └── NotificationContext.js
-├── hooks/
-│   ├── useLocalStorage.js
-│   ├── useNotifications.js
-│   └── useFileUpload.js
-├── services/
-│   ├── assignmentService.js
-│   ├── submissionService.js
-│   └── notificationService.js
-└── utils/
-    ├── dateUtils.js
-    ├── fileUtils.js
-    └── validation.js
-```
-
-### Key Component Interfaces
-
-#### AssignmentForm Component
-```javascript
-interface AssignmentFormProps {
-  assignment?: Assignment;
-  onSubmit: (assignment: Assignment) => void;
-  onCancel: () => void;
-  isEditing?: boolean;
-}
-```
-
-#### SubmissionForm Component
-```javascript
-interface SubmissionFormProps {
-  assignment: Assignment;
-  existingSubmission?: Submission;
-  onSubmit: (submission: Submission) => void;
-  onCancel: () => void;
-}
-```
+#### Authentication Components
+- **LoginForm**: Handles user authentication with email/password
+- **SignupForm**: User registration with role selection
+- **ProtectedRoute**: Route wrapper for authenticated access
+- **RoleGuard**: Component-level role-based access control
 
 #### Dashboard Components
-```javascript
-interface DashboardProps {
-  user: User;
-  assignments: Assignment[];
-  notifications: Notification[];
-}
+- **StudentDashboard**: Overview of assignments, deadlines, and notifications
+- **TeacherDashboard**: Assignment management and student progress overview
+- **AdminDashboard**: System statistics and user management
+
+#### Assignment Components
+- **AssignmentList**: Paginated list with search and filter capabilities
+- **AssignmentCard**: Individual assignment display with actions
+- **AssignmentForm**: Create/edit assignment with rich text editor
+- **AssignmentDetail**: Full assignment view with submission interface
+
+#### Calendar Components
+- **CalendarView**: Monthly calendar with assignment deadlines
+- **CalendarEvent**: Individual calendar event component
+- **DatePicker**: Date selection for assignment creation
+
+#### Notification Components
+- **NotificationCenter**: Dropdown with recent notifications
+- **NotificationItem**: Individual notification display
+- **NotificationSettings**: User preference configuration
+
+### Backend API Endpoints
+
+#### Authentication Endpoints
+```
+POST /api/auth/login
+POST /api/auth/register
+POST /api/auth/logout
+POST /api/auth/refresh
+GET  /api/auth/profile
+```
+
+#### User Management Endpoints
+```
+GET    /api/users
+GET    /api/users/:id
+PUT    /api/users/:id
+DELETE /api/users/:id
+GET    /api/users/:id/assignments
+```
+
+#### Assignment Endpoints
+```
+GET    /api/assignments
+POST   /api/assignments
+GET    /api/assignments/:id
+PUT    /api/assignments/:id
+DELETE /api/assignments/:id
+GET    /api/assignments/search
+```
+
+#### Submission Endpoints
+```
+GET    /api/submissions
+POST   /api/submissions
+GET    /api/submissions/:id
+PUT    /api/submissions/:id
+DELETE /api/submissions/:id
+POST   /api/submissions/:id/files
+```
+
+#### Notification Endpoints
+```
+GET    /api/notifications
+POST   /api/notifications
+PUT    /api/notifications/:id/read
+DELETE /api/notifications/:id
+GET    /api/notifications/preferences
+PUT    /api/notifications/preferences
 ```
 
 ## Data Models
 
-### Core Data Structures
+### Database Schema
 
-#### User Model
-```javascript
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'teacher' | 'student';
-  classIds: string[];
-  createdAt: Date;
-}
+#### Users Table
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    role user_role NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE user_role AS ENUM ('student', 'teacher', 'administrator');
 ```
 
-#### Assignment Model
-```javascript
-interface Assignment {
-  id: string;
-  title: string;
-  description: string;
-  instructions: string;
-  dueDate: Date;
-  createdDate: Date;
-  teacherId: string;
-  classId: string;
-  studentIds: string[];
-  maxFileSize: number;
-  allowedFileTypes: string[];
-  status: 'draft' | 'published' | 'closed';
-}
+#### Assignments Table
+```sql
+CREATE TABLE assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date TIMESTAMP NOT NULL,
+    created_by UUID REFERENCES users(id),
+    course_id UUID REFERENCES courses(id),
+    max_file_size INTEGER DEFAULT 10485760,
+    allowed_file_types TEXT[],
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-#### Submission Model
-```javascript
-interface Submission {
-  id: string;
-  assignmentId: string;
-  studentId: string;
-  submittedAt: Date;
-  lastModified: Date;
-  files: SubmissionFile[];
-  status: 'draft' | 'submitted' | 'graded' | 'late';
-  grade?: number;
-  feedback?: string;
-  gradedAt?: Date;
-  gradedBy?: string;
-}
+#### Submissions Table
+```sql
+CREATE TABLE submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    assignment_id UUID REFERENCES assignments(id),
+    student_id UUID REFERENCES users(id),
+    submission_text TEXT,
+    grade DECIMAL(5,2),
+    feedback TEXT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    graded_at TIMESTAMP,
+    status submission_status DEFAULT 'draft'
+);
+
+CREATE TYPE submission_status AS ENUM ('draft', 'submitted', 'graded', 'returned');
 ```
 
-#### SubmissionFile Model
-```javascript
-interface SubmissionFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  content: string; // Base64 encoded for localStorage
-  uploadedAt: Date;
-}
+#### Files Table
+```sql
+CREATE TABLE files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    submission_id UUID REFERENCES submissions(id),
+    original_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_size INTEGER NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-#### Notification Model
-```javascript
-interface Notification {
-  id: string;
-  userId: string;
-  type: 'deadline' | 'feedback' | 'assignment' | 'reminder';
-  title: string;
-  message: string;
-  createdAt: Date;
-  read: boolean;
-  actionUrl?: string;
-}
+#### Notifications Table
+```sql
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type notification_type NOT NULL,
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE notification_type AS ENUM ('assignment_created', 'deadline_reminder', 'grade_available', 'system_update');
 ```
 
 ### Data Relationships
 
-- Users belong to multiple classes (many-to-many)
-- Assignments belong to one class and one teacher (one-to-many)
-- Submissions belong to one assignment and one student (one-to-many)
-- Notifications belong to one user (one-to-many)
+```mermaid
+erDiagram
+    USERS ||--o{ ASSIGNMENTS : creates
+    USERS ||--o{ SUBMISSIONS : submits
+    USERS ||--o{ NOTIFICATIONS : receives
+    ASSIGNMENTS ||--o{ SUBMISSIONS : has
+    SUBMISSIONS ||--o{ FILES : contains
+    COURSES ||--o{ ASSIGNMENTS : contains
+    COURSES ||--o{ ENROLLMENTS : has
+    USERS ||--o{ ENROLLMENTS : enrolled_in
+```
 
 ## Error Handling
 
-### Error Categories and Handling Strategy
+### Frontend Error Handling
+- **Global Error Boundary**: Catches and displays React component errors
+- **API Error Interceptor**: Handles HTTP errors and token refresh
+- **Form Validation**: Real-time validation with user-friendly messages
+- **Network Error Handling**: Offline detection and retry mechanisms
 
-#### Validation Errors
-- **Client-side validation**: Real-time form validation with immediate user feedback
-- **File upload errors**: Size and type validation with clear error messages
-- **Date validation**: Ensure due dates are in the future, submission dates are valid
+### Backend Error Handling
+- **Global Error Middleware**: Centralized error processing and logging
+- **Validation Errors**: Input validation with detailed error messages
+- **Database Errors**: Connection handling and transaction rollbacks
+- **File Upload Errors**: Size and type validation with clear feedback
 
-#### Storage Errors
-- **localStorage quota exceeded**: Graceful degradation with user notification
-- **Data corruption**: Validation on data retrieval with fallback to defaults
-- **Browser compatibility**: Feature detection with polyfills where needed
-
-#### User Experience Errors
-- **Network simulation**: Loading states for all async operations
-- **404 handling**: Proper routing for non-existent assignments or submissions
-- **Permission errors**: Clear messaging when users access unauthorized content
-
-### Error Boundary Implementation
-```javascript
-class AssignmentPortalErrorBoundary extends React.Component {
-  // Catches JavaScript errors in component tree
-  // Displays fallback UI with error reporting option
-  // Logs errors for debugging purposes
+### Error Response Format
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input data",
+    "details": [
+      {
+        "field": "email",
+        "message": "Email format is invalid"
+      }
+    ]
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
 ## Testing Strategy
 
-### Testing Approach
+### Frontend Testing
+- **Unit Tests**: Jest and React Testing Library for component testing
+- **Integration Tests**: Testing component interactions and API calls
+- **E2E Tests**: Cypress for critical user workflows
+- **Accessibility Tests**: axe-core for WCAG compliance
+- **Visual Regression Tests**: Chromatic for UI consistency
 
-#### Unit Testing
-- **Component testing**: React Testing Library for component behavior
-- **Utility function testing**: Jest for date, file, and validation utilities
-- **Hook testing**: Custom hooks with React Hooks Testing Library
-- **Service layer testing**: Mock localStorage operations and data transformations
+### Backend Testing
+- **Unit Tests**: Jest for service and utility function testing
+- **Integration Tests**: Supertest for API endpoint testing
+- **Database Tests**: In-memory PostgreSQL for data layer testing
+- **Security Tests**: OWASP ZAP for vulnerability scanning
+- **Performance Tests**: Artillery for load testing
 
-#### Integration Testing
-- **User flow testing**: Complete assignment creation and submission workflows
-- **Context integration**: State management across component boundaries
-- **Routing integration**: Navigation between different user roles and views
+### Test Coverage Goals
+- Unit Tests: 80% code coverage minimum
+- Integration Tests: All API endpoints covered
+- E2E Tests: Critical user paths covered
+- Security Tests: All authentication and authorization flows
 
-#### End-to-End Testing Considerations
-- **Critical path testing**: Assignment creation → distribution → submission → grading
-- **Cross-browser compatibility**: Modern browser support verification
-- **Accessibility testing**: Screen reader compatibility and keyboard navigation
-
-### Test Data Strategy
-- **Mock data generators**: Realistic test assignments, users, and submissions
-- **Test fixtures**: Predefined scenarios for different user roles and states
-- **localStorage mocking**: Isolated test environment without persistent data
-
-## Security Considerations
-
-### Client-Side Security
-- **Input sanitization**: XSS prevention for user-generated content
-- **File upload validation**: Strict file type and size checking
-- **Data validation**: Schema validation for all data structures
-- **Role-based access**: UI-level restrictions based on user roles
-
-### Data Privacy
-- **Local storage encryption**: Sensitive data encoding (basic obfuscation)
-- **Session management**: User authentication state handling
-- **Data cleanup**: Automatic cleanup of expired assignments and submissions
-
-## Performance Considerations
-
-### Optimization Strategies
-- **Component memoization**: React.memo for expensive re-renders
-- **Lazy loading**: Code splitting for teacher/student specific components
-- **Virtual scrolling**: For large assignment and submission lists
-- **File handling optimization**: Chunked file reading for large submissions
-
-### Storage Management
-- **Data pruning**: Automatic cleanup of old notifications and completed assignments
-- **Compression**: File content compression before localStorage storage
-- **Quota monitoring**: Storage usage tracking with user notifications
-
-## Accessibility Features
-
-### WCAG 2.1 Compliance
-- **Keyboard navigation**: Full application accessibility without mouse
-- **Screen reader support**: Proper ARIA labels and semantic HTML
-- **Color contrast**: Sufficient contrast ratios for all text and UI elements
-- **Focus management**: Clear focus indicators and logical tab order
-
-### Inclusive Design
-- **Responsive design**: Mobile-first approach for various device sizes
-- **Font scaling**: Support for browser zoom and custom font sizes
-- **Alternative text**: Descriptive alt text for all images and icons
-- **Error messaging**: Clear, actionable error messages for all user interactions
+### Testing Environment
+- **Test Database**: Separate PostgreSQL instance with test data
+- **Mock Services**: AWS S3 mocking for file operations
+- **CI/CD Integration**: Automated testing on pull requests
+- **Test Reporting**: Coverage reports and test result dashboards

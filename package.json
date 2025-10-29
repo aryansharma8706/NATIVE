@@ -1,19 +1,22 @@
 {
-  "name": "myfirstapp",
+  "name": "classroom-assignment-portal",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A comprehensive classroom assignment management portal",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build"
   },
-  "dependencies": {
-    "expo": "~54.0.20",
-    "expo-status-bar": "~3.0.8",
-    "react": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-safe-area-context": "^5.6.1"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   },
-  "private": true
+  "keywords": ["education", "assignment", "portal", "react", "nodejs"],
+  "author": "",
+  "license": "MIT"
 }

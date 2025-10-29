@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import {
-  Container, AppBar, Toolbar, Typography, Box, Button, Grid, Card, CardContent,
+  Container, AppBar, Toolbar, Typography, Box, Button, Card, CardContent,
   CardActions, Fab, Badge, IconButton, Menu, MenuItem, Chip, Avatar, Divider,
   List, ListItem, ListItemText, ListItemIcon, Paper, Tab, Tabs
 } from '@mui/material';
@@ -205,13 +205,13 @@ function Dashboard() {
 
       {/* Tab Content */}
       {tabValue === 0 && (
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {mockAssignments.map((assignment) => (
-            <Grid item xs={12} md={6} lg={4} key={assignment.id}>
+            <Box key={assignment.id} sx={{ flex: '1 1 300px', minWidth: 300, maxWidth: 400 }}>
               <AssignmentCard assignment={assignment} />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       )}
 
       {tabValue === 1 && (
@@ -333,45 +333,43 @@ function HomePage() {
         </Box>
 
         {/* Feature Cards */}
-        <Box sx={{ mt: 4 }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
-                <AssignmentIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  Assignment Management
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Create, organize, and track assignments with ease. Set deadlines, 
-                  requirements, and grading criteria.
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
-                <UploadIcon sx={{ fontSize: 48, color: 'secondary.main', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  File Submissions
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Secure file upload system with support for multiple formats. 
-                  Track submission history and versions.
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
-                <CalendarIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  Calendar Integration
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Visual calendar with deadline tracking, notifications, 
-                  and export to external calendar apps.
-                </Typography>
-              </Card>
-            </Grid>
-          </Grid>
+        <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>
+          <Box sx={{ flex: '1 1 300px', minWidth: 300, maxWidth: 350 }}>
+            <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <AssignmentIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                Assignment Management
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Create, organize, and track assignments with ease. Set deadlines, 
+                requirements, grading criteria.
+              </Typography>
+            </Card>
+          </Box>
+          <Box sx={{ flex: '1 1 300px', minWidth: 300, maxWidth: 350 }}>
+            <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <UploadIcon sx={{ fontSize: 48, color: 'secondary.main', mb: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                File Submissions
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Secure file upload system with support for multiple formats. 
+                Track submission history and versions.
+              </Typography>
+            </Card>
+          </Box>
+          <Box sx={{ flex: '1 1 300px', minWidth: 300, maxWidth: 350 }}>
+            <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <CalendarIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                Calendar Integration
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Visual calendar with deadline tracking, notifications, 
+                and export to external calendar apps.
+              </Typography>
+            </Card>
+          </Box>
         </Box>
       </Box>
     </Container>

@@ -1,38 +1,332 @@
-.App {
-  text-align: center;
+/* Global Styles */
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Responsive Typography */
+@media (max-width: 600px) {
+  .MuiTypography-h1 {
+    font-size: 2rem !important;
+  }
+  
+  .MuiTypography-h2 {
+    font-size: 1.75rem !important;
+  }
+  
+  .MuiTypography-h3 {
+    font-size: 1.5rem !important;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Card Hover Effects */
+.MuiCard-root {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
 }
 
-.App-link {
-  color: #61dafb;
+.MuiCard-root:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
 }
 
-@keyframes App-logo-spin {
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading {
+  animation: pulse 2s infinite;
+}
+
+/* File Upload Drag and Drop */
+.file-upload-area {
+  transition: all 0.2s ease;
+}
+
+.file-upload-area.drag-active {
+  border-color: #1976d2 !important;
+  background-color: rgba(25, 118, 210, 0.04) !important;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .MuiContainer-root {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  
+  .MuiDialog-paper {
+    margin: 16px !important;
+    width: calc(100% - 32px) !important;
+  }
+  
+  .MuiCardActions-root {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .MuiCardActions-root .MuiButton-root {
+    width: 100% !important;
+  }
+}
+
+/* Tablet Responsive Adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .MuiGrid-item {
+    padding: 12px !important;
+  }
+}
+
+/* High DPI Display Adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .MuiSvgIcon-root {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.MuiButton-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiTextField-root:focus-within {
+  outline: 2px solid #1976d2 !important;
+  outline-offset: 2px !important;
+}
+
+/* Print Styles */
+@media print {
+  .MuiFab-root,
+  .MuiAppBar-root,
+  .MuiDrawer-root {
+    display: none !important;
+  }
+  
+  .MuiCard-root {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Dark Mode Support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #555;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #777;
+  }
+}
+
+/* Animation for new items */
+@keyframes slideInUp {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Feature card animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+.feature-card:nth-child(5) { animation-delay: 0.5s; }
+.feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Pulse animation for statistics and notifications */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Notification badge pulse */
+@keyframes notificationPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+}
+
+/* Notification badge positioning */
+.notification-badge {
+  position: relative;
+}
+
+.notification-badge .MuiBadge-badge {
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  transform: scale(0.75) !important;
+  font-size: 0.6rem !important;
+  min-width: 14px !important;
+  height: 14px !important;
+  border: 1px solid white !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+/* Mobile notification badge */
+@media (max-width: 600px) {
+  .notification-badge .MuiBadge-badge {
+    font-size: 0.5rem !important;
+    min-width: 12px !important;
+    height: 12px !important;
+    transform: scale(0.7) !important;
+  }
+}
+
+/* Bell icon hover effect */
+.MuiIconButton-root:hover .MuiSvgIcon-root {
+  transform: rotate(15deg) !important;
+  transition: transform 0.2s ease !important;
+}
+
+/* Ensure badge doesn't interfere with bell visibility */
+.notification-badge .MuiBadge-badge {
+  pointer-events: none !important;
+}
+
+/* Stylish quote animations */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.stylish-quote {
+  background: linear-gradient(-45deg, #1976d2, #dc004e, #1976d2, #dc004e);
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Import Google Fonts for stylish typography */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap');
+
+/* Testimonial card hover effects */
+.testimonial-card {
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.stat-card:hover {
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Button hover effects */
+.MuiButton-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiButton-root:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Card entrance animation */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-entrance {
+  animation: cardEntrance 0.5s ease-out;
 }

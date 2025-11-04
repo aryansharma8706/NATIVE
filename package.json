@@ -16,7 +16,16 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "keywords": ["education", "assignment", "portal", "react", "nodejs"],
+  "keywords": [
+    "education",
+    "assignment",
+    "portal",
+    "react",
+    "nodejs"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.13.1"
+  }
 }

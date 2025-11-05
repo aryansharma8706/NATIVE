@@ -1,17 +1,19 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   ThemeProvider, createTheme, CssBaseline, Container, AppBar, Toolbar, Typography,
   Box, Button, Card, CardContent, TextField, Alert, Snackbar, Grid, Paper,
   List, ListItem, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions,
-  FormControl, InputLabel, Select, MenuItem, Chip, IconButton, Menu, Avatar, Tabs, Tab
+  FormControl, InputLabel, Select, MenuItem, Chip, IconButton, Menu, Avatar, Tabs, Tab,
+  ListItemIcon
 } from '@mui/material';
 import {
   School as SchoolIcon, Dashboard as DashboardIcon, Assignment as AssignmentIcon,
   Add as AddIcon, ExitToApp as LogoutIcon, Person as PersonIcon, Class as ClassIcon,
   AccountCircle as AccountCircleIcon, Grade as GradeIcon, ViewList as ViewListIcon,
-  Analytics as AnalyticsIcon
+  Analytics as AnalyticsIcon, CloudUpload as CloudUploadIcon, AttachFile as AttachFileIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import ClassroomDetail from './components/ClassroomDetail';
 import TeacherGrading from './components/TeacherGrading';
@@ -49,6 +51,13 @@ interface Classroom {
   students: User[];
   classCode: string;
   isActive: boolean;
+  attachments?: {
+    filename: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+    uploadedAt: string;
+  }[];
 }
 
 interface Assignment {
@@ -315,7 +324,6 @@ function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -324,21 +332,15 @@ function Dashboard() {
   // Dialog states
   const [classroomDialog, setClassroomDialog] = useState(false);
   const [joinDialog, setJoinDialog] = useState(false);
-  const [assignmentDialog, setAssignmentDialog] = useState(false);
-  const [submissionDialog, setSubmissionDialog] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   // Form states
   const [classroomForm, setClassroomForm] = useState({ name: '', description: '', subject: '' });
   const [joinCode, setJoinCode] = useState('');
-  const [assignmentForm, setAssignmentForm] = useState({
-    title: '', description: '', classroom: '', dueDate: '', maxPoints: 100, instructions: ''
-  });
-  const [submissionContent, setSubmissionContent] = useState('');
+  const [classroomFiles, setClassroomFiles] = useState<File[]>([]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const loadData = async () => {
     try {
@@ -361,11 +363,27 @@ function Dashboard() {
 
   const createClassroom = async () => {
     try {
-      await axios.post('/classrooms', classroomForm);
+      const formData = new FormData();
+      formData.append('name', classroomForm.name);
+      formData.append('description', classroomForm.description);
+      formData.append('subject', classroomForm.subject);
+      
+      // Add files to form data
+      classroomFiles.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      await axios.post('/classrooms', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       setClassroomDialog(false);
       setClassroomForm({ name: '', description: '', subject: '' });
+      setClassroomFiles([]);
       loadData();
-      setSnackbar({ open: true, message: 'Classroom created successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: 'Classroom created successfully with files!', severity: 'success' });
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Failed to create classroom', severity: 'error' });
     }
@@ -505,7 +523,7 @@ function Dashboard() {
         )}
 
         {/* Dialogs */}
-        <Dialog open={classroomDialog} onClose={() => setClassroomDialog(false)} maxWidth="sm" fullWidth>
+        <Dialog open={classroomDialog} onClose={() => setClassroomDialog(false)} maxWidth="md" fullWidth>
           <DialogTitle>Create New Classroom</DialogTitle>
           <DialogContent>
             <TextField
@@ -514,6 +532,7 @@ function Dashboard() {
               value={classroomForm.name}
               onChange={(e) => setClassroomForm({ ...classroomForm, name: e.target.value })}
               margin="normal"
+              placeholder="e.g., Advanced Mathematics, Web Development"
             />
             <TextField
               fullWidth
@@ -521,6 +540,7 @@ function Dashboard() {
               value={classroomForm.subject}
               onChange={(e) => setClassroomForm({ ...classroomForm, subject: e.target.value })}
               margin="normal"
+              placeholder="e.g., Mathematics, Computer Science"
             />
             <TextField
               fullWidth
@@ -530,11 +550,110 @@ function Dashboard() {
               value={classroomForm.description}
               onChange={(e) => setClassroomForm({ ...classroomForm, description: e.target.value })}
               margin="normal"
+              placeholder="Describe the course objectives, requirements, and expectations..."
             />
+            
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Course Materials (Optional)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Upload syllabus, course outline, reading materials, or other documents
+              </Typography>
+              
+              <Box
+                sx={{
+                  border: '2px dashed #ccc',
+                  borderRadius: 2,
+                  p: 3,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  '&:hover': { borderColor: 'primary.main' }
+                }}
+              >
+                <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                <Typography variant="body1" gutterBottom>
+                  Upload Course Materials
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Drag and drop files here or click to browse
+                </Typography>
+                
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setClassroomFiles(Array.from(e.target.files));
+                    }
+                  }}
+                  style={{ display: 'none' }}
+                  id="classroom-file-upload"
+                  accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx"
+                />
+                <label htmlFor="classroom-file-upload">
+                  <Button variant="outlined" component="span">
+                    Choose Files
+                  </Button>
+                </label>
+                
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                  Supported: PDF, DOC, DOCX, TXT, PPT, XLS (Max 10MB each)
+                </Typography>
+              </Box>
+              
+              {/* Selected Files List */}
+              {classroomFiles.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Selected Files ({classroomFiles.length}):
+                  </Typography>
+                  <List dense>
+                    {classroomFiles.map((file, index) => (
+                      <ListItem
+                        key={index}
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: 1,
+                          mb: 1,
+                          backgroundColor: 'grey.50'
+                        }}
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            onClick={() => {
+                              setClassroomFiles(prev => prev.filter((_, i) => i !== index));
+                            }}
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemIcon>
+                          <AttachFileIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={file.name}
+                          secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              )}
+            </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setClassroomDialog(false)}>Cancel</Button>
-            <Button onClick={createClassroom} variant="contained">Create</Button>
+            <Button onClick={() => {
+              setClassroomDialog(false);
+              setClassroomFiles([]);
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={createClassroom} variant="contained">
+              Create Classroom
+            </Button>
           </DialogActions>
         </Dialog>
 

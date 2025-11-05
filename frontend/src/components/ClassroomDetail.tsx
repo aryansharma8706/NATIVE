@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Container, Typography, Box, Button, Card, CardContent,
-  List, ListItem, ListItemText, Avatar, Chip, Alert, CircularProgress,
+  Avatar, Chip, Alert, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, InputLabel, Select, MenuItem, Tabs, Tab, Grid
+  Tabs, Tab, IconButton, Divider
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon, Add as AddIcon, People as PeopleIcon,
-  Assignment as AssignmentIcon, School as SchoolIcon
+  Assignment as AssignmentIcon, School as SchoolIcon, AttachFile as AttachFileIcon,
+  GetApp as DownloadIcon
 } from '@mui/icons-material';
 import AssignmentList from './AssignmentList';
 
@@ -29,6 +30,13 @@ interface Classroom {
   teacher: User;
   students: User[];
   classCode: string;
+  attachments?: {
+    filename: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+    uploadedAt: string;
+  }[];
 }
 
 interface ClassroomDetailProps {
@@ -153,6 +161,47 @@ export default function ClassroomDetail({ user }: ClassroomDetailProps) {
 
       {tabValue === 0 && (
         <AssignmentList classroomId={classroom._id} userRole={user.role} />
+      )}
+
+      {tabValue === 1 && (
+        <Box>
+          {/* Course Materials Section */}
+          {classroom.attachments && classroom.attachments.length > 0 && (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Course Materials
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                {classroom.attachments.map((file, index) => (
+                  <Card key={index}>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <AttachFileIcon color="primary" />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle2" noWrap>
+                            {file.originalname}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB • {file.mimetype}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            window.open(`http://localhost:5000/api/files/download/${file.filename}`, '_blank');
+                          }}
+                        >
+                          <DownloadIcon />
+                        </IconButton>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+              <Divider sx={{ my: 3 }} />
+            </Box>
+          )}
+        </Box>
       )}
 
       {tabValue === 1 && (

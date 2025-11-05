@@ -8,6 +8,13 @@ export interface IClassroom extends Document {
   teacher: mongoose.Types.ObjectId;
   students: mongoose.Types.ObjectId[];
   classCode: string;
+  attachments: {
+    filename: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+    uploadedAt: Date;
+  }[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -43,6 +50,28 @@ const classroomSchema = new Schema<IClassroom>({
     unique: true,
     uppercase: true
   },
+  attachments: [{
+    filename: {
+      type: String,
+      required: true
+    },
+    originalname: {
+      type: String,
+      required: true
+    },
+    mimetype: {
+      type: String,
+      required: true
+    },
+    size: {
+      type: Number,
+      required: true
+    },
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   isActive: {
     type: Boolean,
     default: true
